@@ -1,0 +1,81 @@
+Programarea Calculatoarelor Tema3 - Marinescu Alexandru Gabriel 312CA
+
+   In aceasta tema am invatat cum sa lucrez cu structuri, fisiere binare,
+cum sa organizez codul pe headere si sa imbunatatesc alocarea dinamica
+pentru structuri.Toate acestea au ajutat la formarea unui cod in vederea
+modificarii unei imagini prin diverse operatii descrise in enuntul problemei
+pe care le voi detalia mai jos.In vederea construirii imaginii aceasta trebuie
+sa retina dimensiunile, coordonatele pozitiilor de start si final, tipul ei,
+val_max daca exista si matricea de pixeli.
+
+
+   LOAD(mi-a dat teroare la inceput):Dupa apasarea acestui cuvant se da un
+singur parametru care semnifica numele fisierului corespunzator incarcarii
+unei imagini.In cazul in care acest fisier exista, se verifica daca cumva a
+mai fost incarcata o imagine anterior.Daca aceasta este incarcata, atunci
+se elibereaza memoria necesara pentru respectiva imagine.Se incarca noua imagine,
+care are urmatorii parametri in interiorul ei:tipul imaginii(P1...6),
+dimensiunile(latime, inaltime), valoarea maxima a pixelilor daca tipul imaginii
+este P2,3 sau P5,6 si in final matricea de pixeli.Formatul citirii pentru matricea
+de pixeli poate fi ascii sau binar.Astfel am creeat 2 functii care citesc fiecare
+matricea de pixeli corespunzatoare tipului imaginii, adica format ascii pentru P1..3
+si format binar pentru P4..6.Pentru P3 si P6 se incarca niste matrici
+rgb(o "casuta" are 3 pixeli pentru rosu,verde, albastru),iar pentru restul tipurilor
+de matrici se incarca o imagine alb_negru.
+
+   SELECT(o functie draguta): Aceasta are 2 tipuri de date de urmeaza dupa introducerea
+ei: -aparitia cuvantului ALL, in care trebuie selectata toata imaginea(coordonatele x1,y1
+ale pozitiei de start reprezinta coltul stanga sus, iar x1,y2 ale pozitiei de final
+reprezinta coltul dreapta jos al matricei.
+    -aparitia a 4 parametri(x1, y1, x2, y2) care trebuie sa reprezinte niste numere valide.
+Acestea trebuie sa fie niste coordonate din interiorul imaginii, adica 0 <= x1, x2 < x(latimea)
+si 0 <= y1, y2 < y(inaltimea).In cazul in care acestea sunt bune, trebuie sa fie in ordine
+crescatoare x1 < x2 si y1 < y2.Daca nu sunt respectate aceste conditii, atunci coordonatele
+sunt invalide.Retin forma matricei selectate(dreptunghi/patrat)
+
+   CROP(o functie usoara): Aceasta functie este lipsita de parametri si are rolul de actualiza
+imaginea cu matricea de pixeli corespunzatoare selectiei facute.Adica selectam matricea cuprinsa
+intre coltul stanga sus(x1, y1) si coltul dreapta jos(x2, y2).De asemenea, actualizam si 
+dimensiunile noii imagini: latimea = x2 - x1 si inaltimea = y2 - y1;
+
+   ROTATE(cea mai blestemata functie):Pentru o submatrice selectata in urma operatiei de select,
+trebuie sa rotesc acea matrice la diferite unghiuri(-360, -270, .., 270, 360).Observam ca rotirea
+la -grade este echivalenta cu rotirea la (-grade + 360).De exemplu, daca vrem sa rotim cu -90 matricea,
+asta inseamna sa rotim cu 90 la stanga, practic este echivalenta cu rotirea la 270 la dreapta.Este mai
+comod sa lucram cu numere pozitive.Asa ca in cazul in care nr de grade este un numar negativ, il marim
+cu 360.Daca acesta nu este un multiplu de 90 in interiorul intervalul[-360,360] atunci unghiul nu este valid.
+In cazul in care unghiul este de 0 grade sau 360 nu se modifica nimic la matrice, ar fi chiar insasi.
+"Problematice" sunt rotirile la 90, 180, 270.Astfel, in loc sa fac pentru 180 rotire de 2 ori cu 90 la dreapta
+si pentru 270 de 3 ori la dreapta(cum ar face orice om normal la cap:)) ), am decis(ca tot aveam mult timp
+la dispozitie in vacanta si nu aveam ce face) sa ma gandesc cum as putea scrie o functie pentru fiecare rotire
+care roteste direct la nr de grade dorit.Am luat o matrice auxiliara in care pun elementele corespunzatoare
+conform formulelor gasite(ore intregi pierdute si verificand ca sunt bune, dar s-a meritat).De asemenea, se
+poate roti si toata imaginea, chiar daca este dreptunghi(in cazul rotirii unei submatrici, acestea trb sa fie 
+un patrat).Si astfel am cate 3 functii pentru rotirea unei submatrici sau a intregii imagini la cele 3 tipuri
+de grade(90, 180, 270).Este cea mai eficienta metoda(de aceea imi merg si testele repede), caci fac o singura
+parcurgere a unei matrici:).Sper sa apreciezi ca m-am chinuit la rotire <3.
+
+   APPLY(o functie la care am tot modificat de 1000 de ori din cauza eps-ului si testelor... cam timp pierdut,
+dar in fine:) ).Aceasta primeste un singur parametru care reprezinta tipul efectului aplicat.Acest filtru
+se aplica doar pentru matrici rgb, iar pentru restul se afiseaza un mesaj "troll"(de ce Charlie Chaplin?! :)).
+In enuntul problemei ne sunt descrise matricile pentru cele 4 tipuri de filtre(edge, sharpen, blur, gaussian_blur).
+Pixelii de pe margini nu trb modificati, si trebuie schimbati cei din interiorul matricei selectate care au 8 vecini.
+Astfel sa zicem ca sunt pe pixelul din matricea cu coordonatele i,j si il modific asa:fiecare element din submatricea
+care incepe din coltul (i-1, j-1) si se termina in coltul (i + 1, j + 1) se inmulteste cu valoarea numarului
+corespunzator din matricea de pixeli si se face suma lor, inlocuind mat[i][j] cu suma obtinuta.Aceasta valoare trb sa
+faca parte din intervalul[0, val_max] si folosesc functia clamp descrisa si in enunt.
+
+  SAVE(o functie la care am tot modificat tipul de date salvat din cauza apply-ul...).Aceasta functie este asemenatoare
+cu loadul. Trebuie sa salvez intr-un fisier o imagine in format ascii/binar.Daca imaginea trebuie sa fie in format ascii,
+iar ea este in binar atunci ii scad tipul acesteia cu 3:De ex P6 devine P3.Invers, trebuie crescut cu 3 din ascii in binar.
+In rest se afiseaza dimensiunile, val_max daca este cazul si matricea de pixeli rotunjita la cel mai aproape intreg prin
+functia round.
+
+  EXIT:se elibereaza memoria alocata pentru matricea pixelilor imaginii.
+  
+  NO_COMMAND:orice comanda invalida(fie ca primul cuvant nu este o comanda valida sau parametri comenzii nu sunt cum ar
+trebui(nr de cuvinte e diferit) sau nu sunt tipul de date respectiv, se afiseaza mesajul de eroare).
+  
+ 	
+
+
